@@ -6,6 +6,7 @@ const Exercise = require('../models/exerices.model');
 
 router.post('/new-user', (req,res) => {
   const {username} = req.body;
+  if(!username) return res.status(400).json("username is required")
   User.findOne({username}).then(user => {
     if(user) {
         return res.status(400).json("user already taken");
@@ -48,9 +49,9 @@ router.post('/add', (req,res) => {
             res.json({
               _id: user._id,
               username: user.username,
-              description: savedExercise.description,
+              date: savedExercise.date,
               duration: savedExercise.duration,
-              date: savedExercise.date
+              description: savedExercise.description,
             })
         }).catch(err => {
             console.error(err);
