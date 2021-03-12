@@ -49,7 +49,7 @@ router.post('/add', (req,res) => {
             res.json({
               _id: user._id,
               username: user.username,
-              date: savedExercise.date,
+              date: savedExercise.date.toDateString(),
               duration: savedExercise.duration,
               description: savedExercise.description,
             })
@@ -60,9 +60,10 @@ router.post('/add', (req,res) => {
     })
 })
 
-router.get("/log/:userId", (req, res) => {
-  const {userId} = req.params;
+router.get("/log", (req, res) => {
+  const {userId} = req.query;
   
+  if (!userId) return res.status(400).json("Please enter user id");
   
   User.findById(userId).then(user => {
     if (!user) return res.status(404).json("User doesn't exist");
@@ -74,19 +75,32 @@ router.get("/log/:userId", (req, res) => {
           date: 1,
         }
       }).then(exercises => {
+
       const from = req.query.from ? new Date(req.query.from) : exercises[0].date;
+
       const to = req.query.to ? new Date(req.query.to) : exercises[exercises.length - 1].date;
+
       const limit = req.query.limit ? req.query.limit : exercises.length;
-      const untilDate = exercises.filter(val => {
+      
+      let untilDate = exercises.filter(val => {
         const valDate = val.date;
         valDate.setUTCHours(0, 0, 0, 0);
         return valDate >= from && valDate <= to
-      });
+      }); 
+      
       const requsetedExerices = untilDate.slice(0,limit);
+      const log = requsetedExerices.map(item => {
+        return {
+          description: item.description,
+          duration: item.duration,
+          date: item.date.toDateString()
+        }
+      })
       res.json({
-        user,
-        log: requsetedExerices,
-        count: requsetedExerices.length
+        _id: user._id,
+        username: user.username,
+        count: requsetedExerices.length,
+        log
       })
     })
   })

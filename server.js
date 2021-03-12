@@ -12,7 +12,8 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true,
    .catch((error) => {
      console.log('error connecting to MongoDB:', error.message)
 })
-app.use(express.json());
+app.use(express.urlencoded({ extended: false }))
+
 
 const exerciseRoutes = require("./routes/exercise");
 
